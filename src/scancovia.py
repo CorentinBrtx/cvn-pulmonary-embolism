@@ -6,7 +6,11 @@ from scancovia import AiSegment
 from .utils import nrrd_to_nifti
 
 
-def save_lungs_seg(filename: str, target_filename: str, device: str = "cpu"):
+def save_lungs_seg(filename: str, target_filename: str, device: str = "cpu") -> None:
+
+    if os.path.exists(target_filename):
+        print(f"{target_filename} already exists, skipping")
+        return
 
     _, header = nrrd.read(filename)
 
@@ -23,4 +27,4 @@ def save_lungs_seg(filename: str, target_filename: str, device: str = "cpu"):
 
     os.remove(filename)
 
-    return output
+    return

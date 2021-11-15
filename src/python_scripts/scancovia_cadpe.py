@@ -30,9 +30,15 @@ print(f"Device used: {device}")
 # Run Scancovia on CAD_PE dataset
 
 WORKDIR = os.getenv("WORKDIR")
+ARRAY_ID = int(os.getenv("SLURM_ARRAY_TASK_ID"))
 
-save_lungs_seg(
-    os.path.join(WORKDIR, "CAD_PE/images/005.nrrd"),
-    os.path.join(WORKDIR, "CAD_PE/lungs_scancovia/005_lungs.seg.nrrd"),
-    device=device,
-)
+file = os.listdir(os.path.join(WORKDIR, "CAD_PE/images"))[ARRAY_ID]
+if file.endswith(".nrrd"):
+    print(f"Processing {file}")
+    save_lungs_seg(
+        os.path.join(WORKDIR, "CAD_PE/images", file),
+        os.path.join(
+            WORKDIR, "CAD_PE/lungs_scancovia", os.path.splitext(file)[0] + "_lungs.seg.nrrd"
+        ),
+        device=device,
+    )

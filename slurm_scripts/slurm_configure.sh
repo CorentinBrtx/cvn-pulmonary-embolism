@@ -5,6 +5,7 @@
 #SBATCH --ntasks=1
 #SBATCH --gres=gpu:1 
 #SBATCH --partition=gpu
+#SBATCH --cpus-per-task=1
 
 # Setup conda env - ensure your .conda dir is located on your workir, and move it if not
 [ -L ~/.conda ] && unlink ~/.conda
