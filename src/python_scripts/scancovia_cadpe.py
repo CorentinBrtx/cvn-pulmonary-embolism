@@ -24,6 +24,8 @@ if gpu == 0:
 else:
     device = "cuda"
 
+print(f"Device used: {device}")
+
 #######################################################################
 # Run Scancovia on CAD_PE dataset
 
