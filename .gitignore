@@ -9,6 +9,7 @@
 
 # Heavy data
 data/
+slurm_output/
 
 # Unit test / coverage reports
 .coverage

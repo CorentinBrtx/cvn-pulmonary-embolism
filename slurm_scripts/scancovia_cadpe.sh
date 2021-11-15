@@ -1,11 +1,12 @@
 #!/bin/bash
 #SBATCH --job-name=scancovia_cadpe
-#SBATCH --output=$HOME/slurm_output/scancovia/%x.o%j
+#SBATCH --output=slurm_output/scancovia/%x.o%j
 #SBATCH --time=01:00:00
 #SBATCH --ntasks=4
 #SBATCH --gres=gpu:1
 #SBATCH --partition=gpu
 #SBATCH --cpus-per-task=1
+#SBATCH --mem=32G
 #SBATCH --array=0-92
 
 # Load necessary modules
