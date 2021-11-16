@@ -20,8 +20,7 @@ def save_lungs_seg(filename: str, target_filename: str, device: str = "cpu") -> 
     ai_segment = AiSegment(device=device)
     output = ai_segment(filename)
 
-    if not os.path.exists(os.path.dirname(target_filename)):
-        os.makedirs(os.path.dirname(target_filename))
+    os.makedirs(os.path.dirname(target_filename), exist_ok=True)
 
     nrrd.write(target_filename, output["lungs_mask"].transpose(1, 0, 2), header)
 

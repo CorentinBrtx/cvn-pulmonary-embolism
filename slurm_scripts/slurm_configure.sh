@@ -3,7 +3,7 @@
 #SBATCH --output=%x.o%j
 #SBATCH --time=01:00:00
 #SBATCH --ntasks=1
-#SBATCH --gres=gpu:1 
+#SBATCH --gres=gpu:1
 #SBATCH --partition=gpu
 #SBATCH --cpus-per-task=1
 
