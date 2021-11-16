@@ -5,8 +5,10 @@
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=4
 #SBATCH --partition=cpu_med
-#SBATCH --mem=32G
+#SBATCH --mem=64G
 #SBATCH --array=0-92
+#SBATCH --mail-user=corentin.berteaux@student-cs.fr
+#SBATCH --mail-type=FAIL
 
 # Load necessary modules
 module purge

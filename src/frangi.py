@@ -11,6 +11,11 @@ def save_frangi(
     target_filename: str,
     sigmas: Sequence[float] = (0.5, 0.8, 1.1, 1.4, 1.8, 2.2),
 ) -> None:
+
+    if os.path.exists(target_filename):
+        print(f"{target_filename} already exists, skipping")
+        return
+
     data, header = nrrd.read(filename)
     inverted_data = np.max(data) - data - 1024
 
