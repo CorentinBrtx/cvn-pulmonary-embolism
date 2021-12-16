@@ -1,5 +1,7 @@
 """Useful functions to deal with nrrd files."""
 
+import os
+
 import nibabel as nib
 import nrrd
 import numpy as np
@@ -25,5 +27,7 @@ def nrrd_to_nifti(filename: str, target_filename: str) -> None:
     affine[2, 3] = -affine[2, 3]
 
     img = nib.Nifti1Image(data, affine)
+
+    os.makedirs(os.path.dirname(target_filename), exist_ok=True)
 
     nib.save(img, target_filename)
