@@ -11,7 +11,7 @@
 
 # Load necessary modules
 module purge
-module load anaconda3/2020.02/gcc-9.2.0
+module load anaconda3/2021.05/gcc-9.2.0
 module load cuda/10.2.89/intel-19.0.3.199
 
 # Activate anaconda environment
