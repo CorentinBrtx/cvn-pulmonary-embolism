@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=nnunet_cadpe_train_cascade
+#SBATCH --job-name=nnunet_cadpe_best_config
 #SBATCH --output=/gpfs/users/berteauxc/cvn-pulmonary-embolism/slurm_output/nnUNet/%x.o%j
 #SBATCH --time=24:00:00
 #SBATCH --ntasks=1
@@ -19,4 +19,4 @@ module load cuda/10.2.89/intel-19.0.3.199
 source activate pulmembol
 
 # Run nnUnet commands
-nnUNet_train 3d_cascade_fullres nnUNetTrainerV2CascadeFullRes 501 4 --npz -c
+nnUNet_find_best_configuration -m 3d_fullres 3d_lowres 3d_cascade_fullres -t 501
