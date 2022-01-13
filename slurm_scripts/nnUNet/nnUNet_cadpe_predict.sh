@@ -7,7 +7,6 @@
 #SBATCH --mem-per-cpu=16G
 #SBATCH --partition=gpu
 #SBATCH --cpus-per-task=8
-#SBATCH --mail-user=corentin.berteaux@student-cs.fr
 #SBATCH --mail-type=ALL
 
 # Load necessary modules

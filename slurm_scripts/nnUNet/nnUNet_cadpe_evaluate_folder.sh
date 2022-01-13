@@ -7,7 +7,6 @@
 #SBATCH --mem-per-cpu=16G
 #SBATCH --partition=gpu
 #SBATCH --cpus-per-task=8
-#SBATCH --mail-user=baptiste.prevot@student-cs.fr
 #SBATCH --mail-type=ALL
 
 # Load necessary modules
@@ -19,4 +18,4 @@ module load cuda/10.2.89/intel-19.0.3.199
 source activate pulmembol
 
 # Run nnUnet commands
-nnUNet_evaluate_folder /workdir/shared/pulmembol/nnUNet/nnUNet_raw/nnUNet_raw_data/Task501_EmbolismCADPE/labelsTs /workdir/shared/pulmembol/nnUNet/nnUNet_results/predictionsTs -l 0 1
+nnUNet_evaluate_folder -ref /workdir/shared/pulmembol/nnUNet/nnUNet_raw/nnUNet_raw_data/Task501_EmbolismCADPE/labelsTs -pred /workdir/shared/pulmembol/nnUNet/nnUNet_results/predictionsTs -l 1
