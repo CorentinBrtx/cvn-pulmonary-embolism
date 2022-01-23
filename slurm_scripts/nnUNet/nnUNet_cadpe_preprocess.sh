@@ -18,4 +18,4 @@ source activate pulmembol
 
 # Run nnUnet commands
 #nnUNet_plan_and_preprocess -t 501 --verify_dataset_integrity
-nnUNet_plan_and_preprocess -t 501 
+nnUNet_plan_and_preprocess -t ${1:-501} 
