@@ -3,6 +3,7 @@ import os
 from argparse import ArgumentParser
 from collections import defaultdict
 from typing import Dict
+import math
 
 import numpy as np
 
@@ -17,12 +18,13 @@ def get_overall_metrics(data_folder: str) -> Dict:
     metrics = defaultdict(list)
 
     for fold in folds:
-        with open(os.path.join(fold, "validation_raw_postprocessed/summary.json"), "r") as f:
+        with open(os.path.join(data_folder, fold, "validation_raw_postprocessed/summary.json"), "r") as f:
             metrics_fold = json.load(f)
 
         for result in metrics_fold["results"]["all"]:
             for key in result["1"]:
-                metrics[key].append(result["1"][key])
+                if not math.isnan(result["1"][key]):
+                    metrics[key].append(result["1"][key])
 
     mean_metrics = {key: np.mean(metrics[key]) for key in metrics}
 
@@ -39,6 +41,6 @@ if __name__ == "__main__":
 
     overall_metrics = get_overall_metrics(args.results_folder)
 
-    os.makedirs(args.target_filename, exist_ok=True)
+    os.makedirs(os.path.dirname(args.target_filename), exist_ok=True)
     with open(args.target_filename, "w") as f:
         json.dump(overall_metrics, f, indent=4)

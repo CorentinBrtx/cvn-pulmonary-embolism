@@ -1,0 +1,15 @@
+{
+    "Accuracy": 0.999807566293668,
+    "Dice": 0.6395028429581419,
+    "False Discovery Rate": 0.338071614403609,
+    "False Negative Rate": 0.32563592829077526,
+    "False Omission Rate": 9.912240280552622e-05,
+    "False Positive Rate": 9.347114072327869e-05,
+    "Jaccard": 0.508137781064198,
+    "Negative Predictive Value": 0.9999008775971947,
+    "Precision": 0.661928385596391,
+    "Recall": 0.674364071709225,
+    "Total Positives Reference": 50712.07407407407,
+    "Total Positives Test": 50802.93827160494,
+    "True Negative Rate": 0.9999065288592768
+}
