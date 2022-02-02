@@ -1,13 +1,14 @@
 #!/bin/bash
-#SBATCH --job-name=nnunet_cadpe_train
-#SBATCH --output=slurm_output/%x.o%j
-#SBATCH --time=24:00:00
+#SBATCH --job-name=add_modality
+#SBATCH --output=slurm_output/modality/%x.o%j
+#SBATCH --time=3:00:00
 #SBATCH --ntasks=1
 #SBATCH --gres=gpu:1
-#SBATCH --mem-per-cpu=16G
+#SBATCH --mem-per-cpu=32G
 #SBATCH --partition=gpu
 #SBATCH --cpus-per-task=8
 #SBATCH --mail-type=ALL
+#SBATCH --array=0-92
 
 # Load necessary modules
 module purge
@@ -17,5 +18,4 @@ module load cuda/10.2.89/intel-19.0.3.199
 # Activate anaconda environment
 source activate pulmembol
 
-# Run nnUnet commands
-nnUNet_train 3d_fullres nnUNetTrainerV2 ${1:-501} ${2:-0} --npz -c
+python -m src.python_scripts.add_nnunet_modality $@

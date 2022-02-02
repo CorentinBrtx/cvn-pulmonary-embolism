@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --job-name=nnunet_cadpe_preprocess
-#SBATCH --output=%x.o%j
+#SBATCH --output=slurm_output/%x.o%j
 #SBATCH --time=3:00:00
 #SBATCH --ntasks=1
 #SBATCH --gres=gpu:1
@@ -18,4 +18,4 @@ source activate pulmembol
 
 # Run nnUnet commands
 #nnUNet_plan_and_preprocess -t 501 --verify_dataset_integrity
-nnUNet_plan_and_preprocess -t 501 
+nnUNet_plan_and_preprocess -t ${1:-501} 

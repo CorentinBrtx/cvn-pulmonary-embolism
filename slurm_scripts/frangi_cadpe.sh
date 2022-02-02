@@ -5,10 +5,9 @@
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=4
 #SBATCH --partition=cpu_med
-#SBATCH --mem=64G
+#SBATCH --mem=128G
 #SBATCH --array=0-92
-#SBATCH --mail-user=corentin.berteaux@student-cs.fr
-#SBATCH --mail-type=FAIL
+#SBATCH --mail-type=ALL
 
 # Load necessary modules
 module purge
@@ -19,4 +18,4 @@ module load cuda/10.2.89/intel-19.0.3.199
 source activate pulmembol
 
 # Run python script
-python -m src.python_scripts.frangi_cadpe
+python -m src.python_scripts.frangi_cadpe $@
