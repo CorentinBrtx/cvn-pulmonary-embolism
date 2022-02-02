@@ -1,6 +1,6 @@
 #!/bin/bash
-#SBATCH --job-name=nnunet_cadpe_train
-#SBATCH --output=slurm_output/%x.o%j
+#SBATCH --job-name=nnunet_cadpe_predict
+#SBATCH --output=slurm_output/predict/%x.o%j
 #SBATCH --time=24:00:00
 #SBATCH --ntasks=1
 #SBATCH --gres=gpu:1
@@ -18,4 +18,5 @@ module load cuda/10.2.89/intel-19.0.3.199
 source activate pulmembol
 
 # Run nnUnet commands
-nnUNet_train 3d_fullres nnUNetTrainerV2 ${1:-501} ${2:-0} --npz -c
+
+nnUNet_predict -i $1 -o $2 -m $3 -t $4

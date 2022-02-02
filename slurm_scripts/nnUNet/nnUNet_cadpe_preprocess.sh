@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --job-name=nnunet_cadpe_preprocess
-#SBATCH --output=%x.o%j
+#SBATCH --output=slurm_output/%x.o%j
 #SBATCH --time=3:00:00
 #SBATCH --ntasks=1
 #SBATCH --gres=gpu:1

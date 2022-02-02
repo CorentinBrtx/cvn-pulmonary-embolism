@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --job-name=nnunet_cadpe_predict
-#SBATCH --output=/gpfs/users/berteauxc/cvn-pulmonary-embolism/slurm_output/nnUNet/%x.o%j
+#SBATCH --output=slurm_output/nnUNet/%x.o%j
 #SBATCH --time=24:00:00
 #SBATCH --ntasks=1
 #SBATCH --gres=gpu:1
