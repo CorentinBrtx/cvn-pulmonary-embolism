@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import os
 from sklearn.metrics import auc 
 from sklearn.metrics import precision_recall_curve
-import nrrd
+import nibabel as nib
 import json
 
 
@@ -19,7 +19,8 @@ def compute_recall_curve(
         return
     
     data_predict = np.load(filename_predict)
-    y_truth, header_truth = nrrd.read(filename_truth)
+    img = nib.load(filename_truth)
+    y_truth = img.get_fdata()
 
     y_predict = data_predict["softmax"][1]
 
@@ -40,16 +41,14 @@ def compute_recall_curve(
     # Sauvegarde AUC :
     
     os.makedirs(os.path.dirname(target_filename_auc), exist_ok=True)
-    with open(target_filename_auc, 'r') as f:
-        dict = json.load(f)
+    if os.path.isfile(target_filename_auc):
+        with open(target_filename_auc, 'r') as f:
+            dict_auc = json.load(f)
+    else :
+        dict_auc = {}
+    
     name = os.path.splitext(filename_predict)[0]
-    dict[name] = auc_score
+    dict_auc[name] = auc_score
     with open(target_filename_auc, 'w') as f:
         json.dump(dict,f)
     
-
-
-
-
-
-
