@@ -8,10 +8,10 @@ repos:
       - id: check-added-large-files
 
   - repo: https://github.com/psf/black
-    rev: 20.8b1 # Replace by any tag/version: https://github.com/psf/black/tags
+    rev: 22.1.0 # Replace by any tag/version: https://github.com/psf/black/tags
     hooks:
       - id: black
-        language_version: python3.9.1 # Should be a command that runs python3.6+
+        language_version: python3.9 # Should be a command that runs python3.6+
 
   - repo: https://github.com/pycqa/flake8
     rev: 3.9.0
@@ -22,7 +22,7 @@ repos:
     hooks:
       - id: pylint
         name: pylint
-        entry: ./venv/bin/python -m pylint
+        entry: python -m pylint
         language: system
         types: [python]
         args: ["--errors-only"]

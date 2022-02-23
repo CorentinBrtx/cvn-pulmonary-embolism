@@ -1,10 +1,13 @@
+from typing import Dict
+
 import numpy as np
+
 from .nrrd_utils import nrrd_get_data
 
 
 def evaluate_vessels_detection(
-    vessels_seg_path, lungs_seg_path, embolisms_seg_path, threshold: int = None
-):
+    vessels_seg_path: str, lungs_seg_path: str, embolisms_seg_path: str, threshold: int = None
+) -> Dict:
 
     embolisms = np.where(nrrd_get_data(embolisms_seg_path) > 0, 1, 0)
     lungs = np.where(nrrd_get_data(lungs_seg_path) > 0, 1, 0)
