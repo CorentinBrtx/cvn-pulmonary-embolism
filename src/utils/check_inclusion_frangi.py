@@ -21,9 +21,9 @@ def compute_threshold_effects(
     if thresholds is None:
         thresholds = np.arange(1, n_thresholds + 1) / n_thresholds
     for threshold in thresholds:
-        inclusion.append(np.sum(product > threshold) / gt_sum)
+        inclusion.append(min(np.sum(product >= threshold) / gt_sum, 1))
         covering.append(
-            np.sum(frangi > threshold) / (frangi.shape[0] * frangi.shape[1] * frangi.shape[2])
+            np.sum(frangi >= threshold) / (frangi.shape[0] * frangi.shape[1] * frangi.shape[2])
         )
     return inclusion, covering
 
