@@ -1,0 +1,21 @@
+[MASTER]
+ignore=tests,alembic
+
+[FORMAT]
+max-line-length=100
+
+[MESSAGES CONTROL]
+disable=broad-except,chained-comparison,R0801,W503,
+    too-few-public-methods,
+    too-many-arguments,
+    too-many-instance-attributes,
+    too-many-locals,
+    too-many-statements,
+    too-many-return-statements,
+    too-many-nested-blocks,
+    too-many-branches,
+    cyclic-import
+
+
+[BASIC]
+good-names=i,j,x1,x2,y1,y2,df,id,n,fr,en,db,t,ws
