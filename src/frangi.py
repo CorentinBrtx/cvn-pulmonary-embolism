@@ -1,8 +1,8 @@
 import os
 from typing import Dict, Sequence, Tuple
 
-import nrrd
 import nibabel as nib
+import nrrd
 import numpy as np
 from skimage.filters import frangi
 
@@ -10,19 +10,14 @@ from .utils import evaluate_vessels_detection
 
 
 def save_frangi(
-    filename: str,
-    target_dir: str,
-    suffix="_frangi",
-    remove_suffix="",
-    force=False
+    filename: str, target_dir: str, suffix="_frangi", remove_suffix="", force=False
 ) -> None:
 
     # Preparing the frangi file's name
     [base_name, extension] = os.path.basename(filename).split(".", 1)
     if remove_suffix:
         base_name = base_name.replace(remove_suffix, "")
-    target_filename = os.path.join(
-        target_dir, f"{base_name}{suffix}.{extension}")
+    target_filename = os.path.join(target_dir, f"{base_name}{suffix}.{extension}")
 
     if not force and os.path.exists(target_filename):
         print(f"{target_filename} already exists, skipping")
@@ -92,8 +87,7 @@ def find_best_threshold(
 
         results[threshold] = {}
         for key in current_results[0]:
-            results[threshold][key] = np.mean(
-                [x[key] for x in current_results])
+            results[threshold][key] = np.mean([x[key] for x in current_results])
 
         if results[threshold]["overall_score"] > best_score:
             best_threshold = threshold
