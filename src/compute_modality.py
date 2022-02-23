@@ -5,7 +5,7 @@ from scancovia import AiSegment
 
 
 def compute_and_save_modality(input_filename, output_filename, force=False):
-    if not force and os.exists(output_filename):
+    if not force and os.path.exists(output_filename):
         return
 
     image = nib.load(input_filename)
