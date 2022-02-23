@@ -1,14 +1,14 @@
 import os
-from typing import Dict, Tuple
+from typing import Any, Dict, Tuple
 
 from src.utils import nrrd_get_data
 
 
 def cadpe_load_reference_standard(
     folder: str, file_prefix: str = "", file_suffix: str = "RefStd.nrrd"
-) -> Tuple[Dict, int]:
+) -> Tuple[Dict[str, Dict[str, Any]], int]:
 
-    rs = {}
+    rs: Dict[str, Dict[str, Any]] = {}
     total_clots = 0
 
     for filename in os.listdir(folder):

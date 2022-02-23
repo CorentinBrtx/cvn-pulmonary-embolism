@@ -43,7 +43,6 @@ def cadpe_evaluate_detections(
     )
 
     nb_cases = len(rs.keys())
-
     det_clots = np.zeros(len(detections), dtype=np.int64)
 
     for idx, det in enumerate(detections):
@@ -55,8 +54,8 @@ def cadpe_evaluate_detections(
     det_clots[idx_thresh_elim] = -1
 
     # See how many clots have been detected per volume
-    clots_detected = np.zeros(1, nb_cases)
-    false_positives = np.zeros(1, nb_cases)
+    clots_detected = np.zeros(nb_cases)
+    false_positives = np.zeros(nb_cases)
     false_positives_idx = set(np.where(det_clots == 0)[0])
 
     for i, case_id in enumerate(rs.keys()):
