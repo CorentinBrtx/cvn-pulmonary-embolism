@@ -5,10 +5,7 @@ repos:
     rev: v3.2.0
     hooks:
       - id: trailing-whitespace
-      - id: check-yaml
       - id: check-added-large-files
-      - id: check-merge-conflict
-      - id: detect-private-key
 
   - repo: https://github.com/psf/black
     rev: 20.8b1 # Replace by any tag/version: https://github.com/psf/black/tags
