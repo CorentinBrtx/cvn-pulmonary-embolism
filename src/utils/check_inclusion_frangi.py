@@ -18,10 +18,14 @@ def compute_threshold_effects(frangi: np.ndarray, ground_truth: np.ndarray, n_th
         covering.append(np.sum(frangi > threshold) / (frangi.shape[0]*frangi.shape[1]*frangi.shape[2]))
     return inclusion, covering
 
-def plot_save_effects(thresholds, inclusion, covering, filename):
+def plot_save_effects(thresholds, inclusion, covering, filename, inclusion_std=None, covering_std=None):
     plt.figure()
     plt.plot(thresholds, inclusion, label="PE included in Frangi")
+    if inclusion_std is not None:
+        plt.fill_between(thresholds, inclusion - inclusion_std, inclusion + inclusion_std, alpha=.5)
     plt.plot(thresholds, covering, label="Image included in Frangi")
+    if covering_std is not None:
+        plt.fill_between(thresholds, covering - covering_std, covering + covering_std, alpha=.5)
     plt.xlabel("Threshold")
     plt.ylabel("Proportion of pixels")
     plt.legend()
@@ -36,10 +40,17 @@ if __name__ == "__main__":
     parser.add_argument("--add_summary", action="store_true", help="Also saves a summary of all the plots")
     parser.add_argument("--only_summary", action="store_true", help="Only saves a summary of all the plots")
     parser.add_argument("--n_thresholds", help="The number of thresholds to test", default=10, type=int)
+    parser.add_argument("--thresholds", nargs='*', help="The thresholds to test")
     args = parser.parse_args()
 
     os.makedirs(args.destination, exist_ok=True)
-    thresholds = np.arange(1, args.n_thresholds+1) / args.n_thresholds
+    if args.thresholds == []:
+        thresholds = np.arange(1, args.n_thresholds+1) / args.n_thresholds
+    else:
+        thresholds = [float(thresh) for thresh in args.thresholds]
+
+    print("thresholds: ", thresholds)
+
     threshold_inclusion, threshold_covering = [], []
     for gt_filename in tqdm(os.listdir(args.gt_folder)):
         image_name = os.path.basename(gt_filename).split(".", 1)[0]
@@ -53,13 +64,23 @@ if __name__ == "__main__":
         inclusion, covering = compute_threshold_effects(frangi_data, ground_truth_data, thresholds=thresholds)
         threshold_inclusion.append(inclusion)
         threshold_covering.append(covering)
-        # print(threshold_effects[-1])
         if not args.only_summary:
             plot_save_effects(thresholds, inclusion, covering, os.path.join(args.destination, image_name + ".png"))
 
+        if not np.isfinite(threshold_inclusion[-1]).all():
+            threshold_inclusion.pop()
+            threshold_covering.pop()
+
     if args.only_summary or args.add_summary:
         mean_inclusion = np.mean(np.array(threshold_inclusion), 0)
+        std_inclusion = np.std(np.array(threshold_inclusion), 0)
         mean_covering = np.mean(np.array(threshold_covering), 0)
+        std_covering = np.std(np.array(threshold_covering), 0)
         plot_save_effects(
-            thresholds, mean_inclusion, mean_covering, os.path.join(args.destination, "mean.png")
+            thresholds, 
+            mean_inclusion, 
+            mean_covering, 
+            os.path.join(args.destination, "mean.png"),
+            std_inclusion,
+            std_covering
         )

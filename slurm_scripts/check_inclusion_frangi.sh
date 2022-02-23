@@ -1,9 +1,9 @@
 #!/bin/bash
 #SBATCH --job-name=check_inclusion_frangi
 #SBATCH --output=slurm_output/check_inclusion_frangi/%x.o%j
-#SBATCH --time=02:00:00
+#SBATCH --time=01:00:00
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=4
+#SBATCH --cpus-per-task=1
 #SBATCH --partition=cpu_med
 #SBATCH --mem=64G
 
