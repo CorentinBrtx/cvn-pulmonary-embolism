@@ -1,13 +1,10 @@
 #!/bin/bash
-#SBATCH --job-name=nnunet_cadpe_evaluate_results
+#SBATCH --job-name=cadpe_evaluate_results
 #SBATCH --output=/workdir/shared/pulmembol/slurm_outputs/nnUNet/%x.o%j
-#SBATCH --time=24:00:00
+#SBATCH --time=03:00:00
 #SBATCH --ntasks=1
-#SBATCH --gres=gpu:1
-#SBATCH --mem-per-cpu=16G
+#SBATCH --cpus-per-task=4
 #SBATCH --partition=cpu_med
-#SBATCH --cpus-per-task=8
-#SBATCH --mail-type=ALL
 
 # Load necessary modules
 module purge
