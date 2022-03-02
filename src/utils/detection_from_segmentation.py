@@ -1,5 +1,5 @@
 from random import sample
-from typing import List, Tuple
+from typing import List, Tuple, Any
 
 import networkx as nx
 import numpy as np
@@ -30,7 +30,7 @@ def compute_centers(
     return centers
 
 
-def search_skeleton(skel_indices: np.ndarray, n_centers: int) -> List[Tuple[int]]:
+def search_skeleton(skel_indices: np.ndarray, n_centers: int) -> List[Tuple[Any, ...]]:
     """Go through the skeleton with a DFS and samples the centers as it goes"""
     skel_graph = graph_from_skeleton(skel_indices)
     if len(skel_indices) == 1:
