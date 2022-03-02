@@ -1,7 +1,6 @@
 from random import sample
-from typing import Any, List, Tuple, Union
+from typing import Any, List, Tuple
 
-import nibabel as nib
 import networkx as nx
 import numpy as np
 from scipy.ndimage.measurements import label
@@ -9,25 +8,14 @@ from skimage.morphology import skeletonize_3d
 
 
 def compute_centers(
-    segmentation: Union[str, np.ndarray], mode: str = "random", n_center_per_region: int = 5
+    segmentation: np.ndarray, mode: str = "random", n_center_per_region: int = 5
 ) -> List[Tuple[int]]:
     """Takes in a segmentation and returns the center of each region that can be found"""
-    if type(segmentation) == str: # it's the filename
-        print("Need to load data")
-        segmentation = nib.load(segmentation).get_fdata()
-        print("Loaded data")
-
     centers = []
     indices = np.indices(segmentation.shape).transpose(1, 2, 3, 0)  # 3D image
     if mode in ["random", "semi-smart"]:
-        print("Compute skeleton")
         skeleton = skeletonize_3d(segmentation)
-        print("Compute regions")
         labeled_skeleton, n_regions = label(skeleton, np.ones((3, 3, 3)))
-<<<<<<< Updated upstream
-=======
-        print("Going over regions")
->>>>>>> Stashed changes
         for i in range(1, n_regions + 1):
             if mode == "random":
                 centers += list(sample(indices[labeled_skeleton == i], n_center_per_region))
@@ -38,7 +26,6 @@ def compute_centers(
         # use skimage.morphology.medial_axis on each layer
         # in order to get the distance from each border
         pass
-    print("Computed centers")
     return centers
 
 
