@@ -1,5 +1,6 @@
 import os
 from argparse import ArgumentParser
+from multiprocessing import Pool
 
 import nibabel as nib
 from tqdm import tqdm
@@ -26,6 +27,12 @@ parser.add_argument(
     type=int,
     help="The number of centers we want to have for each embolism",
 )
+parser.add_argument(
+    "--n_processes",
+    default=1,
+    type=int,
+    help="The number of processes we want to run in parallel",
+)
 args = parser.parse_args()
 
 dirs = [
@@ -43,13 +50,29 @@ for dir_name in dirs:
         if filename.endswith(".nii.gz")
     ]
 
-res = []
-for filename in tqdm(all_filenames):
-    segmentation = nib.load(filename).get_fdata()
-    res += [
-        f"{os.path.basename(filename)} {center[0]} {center[1]} {center[2]} 1\n"
-        for center in compute_centers(segmentation, args.mode, args.centers)
-    ]
+print("Compute centers")
 
+
+def centers_from_fname(fname):
+    segmentation = nib.load(fname).get_fdata()
+    return fname, compute_centers(segmentation, args.mode, args.centers)
+
+
+pool = Pool(args.n_processes)
+fnames_n_center_lists = pool.imap_unordered(
+    centers_from_fname,
+    all_filenames,
+)
+
+pool.close()
+
+res = []
+for fname, center_list in tqdm(fnames_n_center_lists, total=len(all_filenames)):
+    for center in center_list:
+        res += [f"{os.path.basename(fname)} {center[0]} {center[1]} {center[2]} 1\n"]
+
+print("Write down results")
 with open(args.dest, "w") as dest_file:
     dest_file.writelines(res)
+
+print("All done")

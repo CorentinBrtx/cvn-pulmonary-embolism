@@ -53,8 +53,6 @@ def graph_from_skeleton(skel_indices: np.ndarray) -> nx.Graph:
             if np.max(np.abs(skel_indices[i] - skel_indices[j])) == 1:
                 edgelist.append((tuple(skel_indices[i]), tuple(skel_indices[j])))
     graph = nx.from_edgelist(edgelist)
-    if len(graph.nodes) != len(skel_indices):
-        print(skel_indices)
     return graph
 
 
