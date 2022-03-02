@@ -15,4 +15,4 @@ module load anaconda3/2021.05/gcc-9.2.0
 source activate pulmembol
 
 # Run python script
-python -u -m src.utils.check_inclusion_frangi $@
+python -u -m src.cat_scan_filters.check_inclusion_frangi $@

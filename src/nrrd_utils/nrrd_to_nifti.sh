@@ -19,4 +19,4 @@ source activate pulmembol
 #python ~/cvn-pulmonary-embolism/src/utils/nrrd_to_nifti.py -r $WORKDIR/CAD_PE/nrrd/images $WORKDIR/CAD_PE/nifti/images
 #python ~/cvn-pulmonary-embolism/src/utils/nrrd_to_nifti.py -r $WORKDIR/CAD_PE/nrrd/rs $WORKDIR/CAD_PE/nifti/rs
 #python ~/cvn-pulmonary-embolism/src/utils/nrrd_to_nifti.py -r $WORKDIR/CAD_PE/nrrd/frangi $WORKDIR/CAD_PE/nifti/frangi
-python ~/cvn-pulmonary-embolism/src/utils/nrrd_to_nifti.py -r $WORKDIR/CAD_PE/nrrd/lungs_scancovia $WORKDIR/CAD_PE/nifti/lungs_scancovia
+python ~/cvn-pulmonary-embolism/src/nrrd_utils/nrrd_to_nifti.py -r $WORKDIR/CAD_PE/nrrd/lungs_scancovia $WORKDIR/CAD_PE/nifti/lungs_scancovia

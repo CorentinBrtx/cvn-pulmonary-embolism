@@ -18,4 +18,4 @@ module load cuda/10.2.89/intel-19.0.3.199
 # Activate anaconda environment
 source activate pulmembol
 
-python -m src.python_scripts.add_nnunet_modality $@
+python -m src.using_nnunet.add_nnunet_modality $@
