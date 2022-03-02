@@ -1,3 +1,4 @@
+import argparse
 from typing import Tuple
 
 import numpy as np
@@ -77,3 +78,34 @@ def cadpe_evaluate_detections(
     ppv = np.sum(clots_detected) / (np.sum(false_positives) + np.sum(clots_detected))
 
     return ss, fps, ppv
+
+
+if __name__ == "__main__":
+
+    parser = argparse.ArgumentParser(description="Evaluate CAD_PE detections")
+
+    parser.add_argument(
+        "detections_path", type=str, help="path to the text file containing the detections"
+    )
+    parser.add_argument(
+        "ground_truth_folder", type=str, help="folder containing the ground truth nrrd files"
+    )
+    parser.add_argument(
+        "threshold", type=float, help="at which confidence score the detections should be computed"
+    )
+    parser.add_argument(
+        "--gt_prefix", type=str, default="", help="prefix for the ground truth files"
+    )
+    parser.add_argument(
+        "--gt_suffix", type=str, default="RefStd.nrrd", help="suffix for the ground truth files"
+    )
+
+    args = parser.parse_args()
+
+    cadpe_evaluate_detections(
+        args.detections_path,
+        args.ground_truth_folder,
+        args.threshold,
+        args.gt_prefix,
+        args.gt_suffix,
+    )
