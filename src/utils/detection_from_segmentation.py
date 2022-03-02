@@ -1,5 +1,5 @@
 from random import sample
-from typing import List, Tuple, Any
+from typing import Any, List, Tuple
 
 import networkx as nx
 import numpy as np
