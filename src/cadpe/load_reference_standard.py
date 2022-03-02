@@ -1,7 +1,7 @@
 import os
 from typing import Any, Dict, Tuple
 
-from src.utils import nrrd_get_data
+from src.nrrd_utils.nrrd_utils import nrrd_get_data
 
 
 def cadpe_load_reference_standard(

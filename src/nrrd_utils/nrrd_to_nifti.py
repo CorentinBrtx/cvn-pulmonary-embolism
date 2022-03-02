@@ -1,8 +1,9 @@
 import os
 from argparse import ArgumentParser
 
-from nrrd_utils import nrrd_to_nifti
 from tqdm import tqdm
+
+from src.nrrd_utils.nrrd_utils import nrrd_to_nifti
 
 parser = ArgumentParser(description="Transform a nrrd file into a nifti file")
 
