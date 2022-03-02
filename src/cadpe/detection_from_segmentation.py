@@ -16,9 +16,8 @@ def compute_centers(
     if mode in ["random", "semi-smart"]:
         skeleton = skeletonize_3d(segmentation)
         labeled_skeleton, n_regions = label(skeleton, np.ones((3, 3, 3)))
-        print(n_regions)
         for i in range(1, n_regions + 1):
-            if mode == "smart":
+            if mode == "random":
                 centers += list(sample(indices[labeled_skeleton == i], n_center_per_region))
             else:
                 centers += search_skeleton(indices[labeled_skeleton == i], n_center_per_region)
@@ -33,8 +32,8 @@ def compute_centers(
 def search_skeleton(skel_indices: np.ndarray, n_centers: int) -> List[Tuple[Any, ...]]:
     """Go through the skeleton with a DFS and samples the centers as it goes"""
     skel_graph = graph_from_skeleton(skel_indices)
-    if len(skel_indices) == 1:
-        return [tuple(skel_indices[0])]
+    if len(skel_indices) < 5:
+        return []
     elif len(skel_indices) < 10:
         ordered_nodes = list(
             nx.dfs_preorder_nodes(
@@ -44,7 +43,7 @@ def search_skeleton(skel_indices: np.ndarray, n_centers: int) -> List[Tuple[Any,
         return [ordered_nodes[len(skel_indices) // 2]]
     else:
         ordered_nodes = list(nx.dfs_preorder_nodes(skel_graph))
-        return ordered_nodes[:: len(skel_indices) // (n_centers - 1)]
+        return ordered_nodes[:: len(skel_indices) // (n_centers + 1)][1 : n_centers + 1]
 
 
 def graph_from_skeleton(skel_indices: np.ndarray) -> nx.Graph:

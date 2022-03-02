@@ -30,11 +30,9 @@ args = parser.parse_args()
 
 dirs = [
     "/workdir/shared/pulmembol/nnUNet/nnUNet_results/Task501_EmbolismCADPE/predictionsTs",
-    *[
-        "/workdir/shared/pulmembol/nnUNet/nnUNet_trained_models/nnUNet/3d_fullres/"
-        f"Task501_EmbolismCADPE/nnUNetTrainerV2__nnUNetPlansv2.1/fold_{i}/validation_raw"
-        for i in range(5)
-    ],
+    "/gpfs/users/prevotb/pulmembol_workdir/nnUNet/nnUNet_trained_models/nnUNet/ensembles/"
+    "Task501_EmbolismCADPE/ensemble_3d_fullres__nnUNetTrainerV2__nnUNetPlansv2."
+    "1--3d_cascade_fullres__nnUNetTrainerV2CascadeFullRes__nnUNetPlansv2.1/ensembled_postprocessed",
 ]
 
 all_filenames = []
