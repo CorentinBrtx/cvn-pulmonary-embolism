@@ -18,4 +18,4 @@ module load cuda/10.2.89/intel-19.0.3.199
 source activate pulmembol
 
 # Run python script
-python -m src.python_scripts.frangi_cadpe $@
+python -m src.cadpe.frangi.compute_frangi $@

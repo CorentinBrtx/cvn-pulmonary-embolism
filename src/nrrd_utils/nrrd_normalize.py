@@ -1,8 +1,9 @@
 import os
 from argparse import ArgumentParser
 
-from nrrd_utils import nrrd_normalize
 from tqdm import tqdm
+
+from src.nrrd_utils.nrrd_utils import nrrd_normalize
 
 parser = ArgumentParser(description="Normalize a nrrd file segmentation (keep only one class)")
 

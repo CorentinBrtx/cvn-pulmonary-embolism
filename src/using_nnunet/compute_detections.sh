@@ -13,4 +13,4 @@ module load anaconda3/2021.05/gcc-9.2.0
 # Activate anaconda environment
 source activate pulmembol
 
-python -m src.python_scripts.compute_detection_from_nnunet $@
+python -m src.using_nnunet.compute_detection_from_nnunet $@

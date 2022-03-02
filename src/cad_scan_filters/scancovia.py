@@ -3,7 +3,7 @@ import os
 import nrrd
 from scancovia import AiSegment
 
-from .utils import nrrd_to_nifti
+from src.nrrd_utils.nrrd_to_nifti import nrrd_to_nifti
 
 
 def save_lungs_seg(filename: str, target_filename: str, device: str = "cpu") -> None:

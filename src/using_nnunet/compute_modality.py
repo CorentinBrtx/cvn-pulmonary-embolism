@@ -1,7 +1,9 @@
 import os
+
 import nibabel as nib
-from src.frangi import compute_frangi
-from scancovia import AiSegment
+
+from src.cat_scan_filters.frangi import compute_frangi
+from src.cat_scan_filters.scancovia import AiSegment
 
 
 def compute_and_save_modality(input_filename, output_filename, force=False):

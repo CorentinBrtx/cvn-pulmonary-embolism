@@ -4,7 +4,7 @@ from argparse import ArgumentParser
 import nibabel as nib
 from tqdm import tqdm
 
-from src.utils.detection_from_segmentation import compute_centers
+from src.cadpe.detection_from_segmentation import compute_centers
 
 parser = ArgumentParser(description="Compute embolism centers from the nnunet masks")
 
@@ -29,7 +29,7 @@ parser.add_argument(
 args = parser.parse_args()
 
 dirs = [
-    "/workdir/shared/pulmembol/nnUNet/nnUNet_results/Task501_EmbolismCADPE/",
+    "/workdir/shared/pulmembol/nnUNet/nnUNet_results/Task501_EmbolismCADPE/predictionsTs",
     *[
         "/workdir/shared/pulmembol/nnUNet/nnUNet_trained_models/nnUNet/3d_fullres/"
         f"Task501_EmbolismCADPE/nnUNetTrainerV2__nnUNetPlansv2.1/fold_{i}/validation_raw"

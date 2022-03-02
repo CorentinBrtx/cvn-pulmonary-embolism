@@ -18,4 +18,4 @@ module load cuda/10.2.89/intel-19.0.3.199
 source activate pulmembol
 
 # Run python script
-python -m src.python_scripts.scancovia_cadpe -g
+python -m src.cat_scan_filters.scancovia.compute_scancovia -g

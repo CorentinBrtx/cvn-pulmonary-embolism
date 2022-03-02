@@ -2,7 +2,7 @@ import getopt
 import os
 import sys
 
-from src.scancovia import save_lungs_seg
+from src.cat_scan_filters.scancovia import save_lungs_seg
 
 #######################################################################
 # Choose a device to work on
