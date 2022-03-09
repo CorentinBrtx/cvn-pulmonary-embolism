@@ -8,7 +8,7 @@ from skimage.feature import peak_local_max
 from skimage.morphology import binary_erosion, skeletonize_3d
 
 
-def depth_skeleton(segmentation: np.array) -> np.array:
+def compute_depth_map(segmentation: np.array) -> np.array:
     depth = np.ones_like(segmentation)
     while np.max(segmentation) > 0:
         segmentation = binary_erosion(segmentation)
@@ -32,8 +32,8 @@ def compute_centers(
                 centers += search_skeleton(indices[labeled_skeleton == i], n_center_per_region)
 
     elif mode == "smart":
-        skeleton = depth_skeleton(segmentation)
-        centers = peak_local_max(skeleton, threshold_abs=4)
+        depth_map = compute_depth_map(segmentation)
+        centers = peak_local_max(depth_map, threshold_abs=4)
     return centers
 
 
