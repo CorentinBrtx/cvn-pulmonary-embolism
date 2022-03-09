@@ -4,7 +4,16 @@ from typing import Any, List, Tuple
 import networkx as nx
 import numpy as np
 from scipy.ndimage.measurements import label
-from skimage.morphology import skeletonize_3d
+from skimage.feature import peak_local_max
+from skimage.morphology import binary_erosion, skeletonize_3d
+
+
+def depth_skeleton(segmentation: np.array) -> np.array:
+    depth = np.ones_like(segmentation)
+    while np.max(segmentation) > 0:
+        segmentation = binary_erosion(segmentation)
+        depth += segmentation
+    return depth
 
 
 def compute_centers(
@@ -23,9 +32,8 @@ def compute_centers(
                 centers += search_skeleton(indices[labeled_skeleton == i], n_center_per_region)
 
     elif mode == "smart":
-        # use skimage.morphology.medial_axis on each layer
-        # in order to get the distance from each border
-        pass
+        skeleton = depth_skeleton(segmentation)
+        centers = peak_local_max(skeleton, threshold_abs=4)
     return centers
 
 
