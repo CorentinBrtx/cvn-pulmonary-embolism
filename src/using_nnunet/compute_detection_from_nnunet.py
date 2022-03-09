@@ -69,7 +69,8 @@ pool.close()
 res = []
 for fname, center_list in tqdm(fnames_n_center_lists, total=len(all_filenames)):
     for center in center_list:
-        res += [f"{os.path.basename(fname)} {center[0]} {center[1]} {center[2]} 1\n"]
+        fname = os.path.basename(fname).split('.', 1)[0]
+        res += [f"{fname} {center[0]} {center[1]} {center[2]} 1\n"]
 
 print("Write down results")
 with open(args.dest, "w") as dest_file:
