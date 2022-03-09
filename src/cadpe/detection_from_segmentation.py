@@ -32,8 +32,14 @@ def compute_centers(
                 centers += search_skeleton(indices[labeled_skeleton == i], n_center_per_region)
 
     elif mode == "smart":
+        labeled_segmentation, n_regions = label(segmentation, np.ones((3, 3, 3)))
         depth_map = compute_depth_map(segmentation)
-        centers = peak_local_max(depth_map, threshold_abs=4)
+        centers = []
+        for i in range(1, n_regions + 1):
+            flat_idx_max = np.argmax(depth_map * (labeled_segmentation == i))
+            idx_max = np.unravel_index(flat_idx_max, depth_map.shape)
+            if depth_map[idx_max] > 3:
+                centers.append(idx_max)
     return centers
 
 
