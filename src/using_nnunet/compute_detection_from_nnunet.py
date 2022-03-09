@@ -9,9 +9,9 @@ from src.cadpe.detection_from_segmentation import compute_centers
 
 parser = ArgumentParser(description="Compute embolism centers from the nnunet masks")
 
-# parser.add_argument(
-#     "--dirs", nargs='+', help="List of directories where the input files are situated"
-# )
+parser.add_argument(
+    "--input_dirs", nargs="+", help="List of directories where the input files are situated"
+)
 parser.add_argument(
     "--dest",
     help="Where to write the result file",
@@ -35,7 +35,7 @@ parser.add_argument(
 )
 args = parser.parse_args()
 
-dirs = [
+dirs = args.input_dirs or [
     "/workdir/shared/pulmembol/nnUNet/nnUNet_results/Task501_EmbolismCADPE/predictionsTs",
     "/gpfs/users/prevotb/pulmembol_workdir/nnUNet/nnUNet_trained_models/nnUNet/ensembles/"
     "Task501_EmbolismCADPE/ensemble_3d_fullres__nnUNetTrainerV2__nnUNetPlansv2."
