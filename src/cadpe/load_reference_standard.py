@@ -1,5 +1,5 @@
 import os
-from typing import Any, Dict, Tuple, List
+from typing import Any, Dict, List, Tuple
 
 import nibabel as nib
 from tqdm import tqdm
@@ -23,9 +23,11 @@ def cadpe_load_reference_standard(
         name = os.path.basename(file)
         name = name.replace(file_suffix, "")
         name = name.replace(file_prefix, "")
-        data = nib.load(file).get_data()
+        img = nib.load(file)
+        data = img.get_data()
+        header = img.header
         n_clots = int(data.max())
-        rs[name] = {"mask": data, "n_clots": n_clots}
+        rs[name] = {"mask": data, "n_clots": n_clots, "voxels_sizes": header.get_zooms()}
         total_clots += n_clots
 
     return rs, total_clots

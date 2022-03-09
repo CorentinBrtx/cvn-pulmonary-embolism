@@ -7,6 +7,20 @@ from tqdm import tqdm
 from src.cadpe.load_reference_standard import cadpe_load_reference_standard
 
 
+def get_detected_clot(center: Tuple[int, int, int], max_distance: float, mask: np.ndarray) -> int:
+    detected_clot = 0
+    min_distance = np.inf
+    for x in range(center[0] - max_distance, center[0] + max_distance + 1):
+        for y in range(center[1] - max_distance, center[1] + max_distance + 1):
+            for z in range(center[2] - max_distance, center[2] + max_distance + 1):
+                if mask[x, y, z] > 0:
+                    if np.linalg.norm(np.array([x, y, z]) - center) <= max_distance:
+                        if np.linalg.norm(np.array([x, y, z]) - center) < min_distance:
+                            min_distance = np.linalg.norm(np.array([x, y, z]) - center)
+                            detected_clot = mask[x, y, z]
+    return detected_clot
+
+
 def cadpe_evaluate_detections(
     detections_path: str,
     ground_truth_folders: List[str],
@@ -53,7 +67,9 @@ def cadpe_evaluate_detections(
     for idx, det in tqdm(enumerate(detections)):
         x, y, z = int(det[1]), int(det[2]), int(det[3])
         if det[0] in rs:
-            det_clots[idx] = rs[det[0]]["mask"][x, y, z]
+            det_clots[idx] = get_detected_clot(
+                (x, y, z), epsilon / np.mean(rs[det[0]]["voxels_sizes"]), rs[det[0]]["mask"]
+            )
 
     # Removes detections below the threshold
     idx_thresh_elim = detections[:, 4].astype(np.float64) < threshold
