@@ -25,9 +25,7 @@ def cadpe_load_reference_standard(
         name = name.replace(file_prefix, "")
         data = nib.load(file).get_data()
         n_clots = int(data.max())
-        rs[name] = {}
-        rs[name]["mask"] = data
-        rs[name]["n_clots"] = n_clots
+        rs[name] = {"mask": data, "n_clots": n_clots}
         total_clots += n_clots
 
     return rs, total_clots
