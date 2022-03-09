@@ -1,19 +1,20 @@
 import argparse
-from typing import Tuple, List
+from typing import List, Tuple
 
 import numpy as np
-from src.cadpe.load_reference_standard import cadpe_load_reference_standard
-
 from tqdm import tqdm
+
+from src.cadpe.load_reference_standard import cadpe_load_reference_standard
 
 
 def cadpe_evaluate_detections(
     detections_path: str,
     ground_truth_folders: List[str],
     threshold: float,
+    epsilon: int = 0,
     gt_prefix: str = "",
     gt_suffix: str = "RefStd.nii.gz",
-    target_file: str = "evaluation.txt"
+    target_file: str = "evaluation.txt",
 ) -> Tuple[float, float, float]:
     """
     Evaluate detections for the CAD_PE challenge.
@@ -100,10 +101,15 @@ if __name__ == "__main__":
         "--detections_path", type=str, help="path to the text file containing the detections"
     )
     parser.add_argument(
-        "--ground_truth_folders", type=str, nargs='+', help="folders containing the ground truth nifti files"
+        "--ground_truth_folders",
+        type=str,
+        nargs="+",
+        help="folders containing the ground truth nifti files",
     )
     parser.add_argument(
-        "--threshold", type=float, help="at which confidence score the detections should be computed"
+        "--threshold",
+        type=float,
+        help="at which confidence score the detections should be computed",
     )
     parser.add_argument(
         "--gt_prefix", type=str, default="", help="prefix for the ground truth files"
@@ -118,10 +124,10 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     cadpe_evaluate_detections(
-        args.detections_path,
-        args.ground_truth_folders,
-        args.threshold,
-        args.gt_prefix,
-        args.gt_suffix,
-        args.target_file
+        detections_path=args.detections_path,
+        ground_truth_folders=args.ground_truth_folders,
+        threshold=args.threshold,
+        gt_prefix=args.gt_prefix,
+        gt_suffix=args.gt_suffix,
+        target_file=args.target_file,
     )
