@@ -17,7 +17,7 @@ def compute_depth_map(segmentation: np.array) -> np.array:
 
 
 def compute_centers(
-    segmentation: np.ndarray, mode: str = "random", n_center_per_region: int = 5
+    segmentation: np.ndarray, mode: str = "random", n_center_per_region: int = 5, min_depth: int = 0
 ) -> List[Tuple[int]]:
     """Takes in a segmentation and returns the center of each region that can be found"""
     centers = []
@@ -38,7 +38,7 @@ def compute_centers(
         for i in range(1, n_regions + 1):
             flat_idx_max = np.argmax(depth_map * (labeled_segmentation == i))
             idx_max = np.unravel_index(flat_idx_max, depth_map.shape)
-            if depth_map[idx_max] > 3:
+            if depth_map[idx_max] > min_depth:
                 centers.append(idx_max)
     return centers
 
