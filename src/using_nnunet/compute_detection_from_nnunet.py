@@ -10,24 +10,11 @@ from src.cadpe.detection_from_segmentation import compute_centers
 parser = ArgumentParser(description="Compute embolism centers from the nnunet masks")
 
 parser.add_argument(
-    "--input_dirs", 
-    nargs="+", 
-    help="List of directories where the input files are situated"
+    "--input_dirs", nargs="+", help="List of directories where the input files are situated"
 )
 parser.add_argument(
     "--dest",
     help="Where to write the result file",
-)
-parser.add_argument(
-    "--mode",
-    default="semi-smart",
-    help="The mode with which we select the centers",
-)
-parser.add_argument(
-    "--centers",
-    default=5,
-    type=int,
-    help="The number of centers we want to have for each embolism (not available with smart mode)",
 )
 parser.add_argument(
     "--n_processes",
@@ -63,7 +50,7 @@ print("Compute centers")
 
 def centers_from_fname(fname):
     segmentation = nib.load(fname).get_fdata()
-    return fname, compute_centers(segmentation, args.mode, args.centers, args.min_center_depth)
+    return fname, compute_centers(segmentation, args.min_center_depth)
 
 
 pool = Pool(args.n_processes)
