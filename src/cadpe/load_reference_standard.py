@@ -23,6 +23,8 @@ def cadpe_load_reference_standard(
         name = os.path.basename(file)
         name = name.replace(file_suffix, "")
         name = name.replace(file_prefix, "")
+        if name[0] == "0":
+            name = name[1:]
         img = nib.load(file)
         data = img.get_data()
         header = img.header

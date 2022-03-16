@@ -10,9 +10,9 @@ from src.cadpe.load_reference_standard import cadpe_load_reference_standard
 def get_detected_clot(center: Tuple[int, int, int], max_distance: float, mask: np.ndarray) -> int:
     detected_clot = 0
     min_distance = np.inf
-    for x in range(center[0] - max_distance, center[0] + max_distance + 1):
-        for y in range(center[1] - max_distance, center[1] + max_distance + 1):
-            for z in range(center[2] - max_distance, center[2] + max_distance + 1):
+    for x in range(center[0] - int(max_distance), center[0] + int(max_distance) + 1):
+        for y in range(center[1] - int(max_distance), center[1] + int(max_distance) + 1):
+            for z in range(center[2] - int(max_distance), center[2] + int(max_distance) + 1):
                 if mask[x, y, z] > 0:
                     if np.linalg.norm(np.array([x, y, z]) - center) <= max_distance:
                         if np.linalg.norm(np.array([x, y, z]) - center) < min_distance:
@@ -86,8 +86,8 @@ def cadpe_evaluate_detections(
 
         # Gets the clots that have been detected
         total_clots_detected = 0
-        for i in range(1, rs[case_id]["n_clots"] + 1):
-            if i in clots_labels_detected:
+        for j in range(1, rs[case_id]["n_clots"] + 1):
+            if j in clots_labels_detected:
                 total_clots_detected += 1
         clots_detected[i] = total_clots_detected
 
@@ -125,6 +125,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--threshold",
         type=float,
+        default=0,
         help="at which confidence score the detections should be computed",
     )
     parser.add_argument(
