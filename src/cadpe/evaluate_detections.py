@@ -80,6 +80,8 @@ def cadpe_evaluate_detections(
     false_positives = np.zeros(nb_cases)
     false_positives_idx = set(np.where(det_clots == 0)[0])
 
+    results = ""
+
     for i, case_id in enumerate(rs.keys()):
         idx_case = np.nonzero(detections[:, 0] == case_id)[0]
         clots_labels_detected = set(det_clots[idx_case])
@@ -94,7 +96,7 @@ def cadpe_evaluate_detections(
         # Obtains the false positives in the volume
         false_positives[i] = len(false_positives_idx & set(idx_case))
 
-        print(f"Case {case_id}: {total_clots_detected} / {rs[case_id]['n_clots']}")
+        results += f"Case {case_id}: {total_clots_detected} / {rs[case_id]['n_clots']}\n"
 
     ss = np.sum(clots_detected) / total_clots
     fps = np.sum(false_positives) / nb_cases
@@ -104,7 +106,11 @@ def cadpe_evaluate_detections(
         ppv = np.sum(clots_detected) / (np.sum(false_positives) + np.sum(clots_detected))
 
     with open(target_file, "w") as f:
-        f.write(f"{ss}\n{fps}\n{ppv}")
+        f.write(f"Results for a tolerance of {epsilon}mm.\n\n")
+        f.write(f"Sensitivity: {ss}\n")
+        f.write(f"False positives per sample: {fps}\n")
+        f.write(f"Positive predictive value: {ppv}\n\n")
+        f.write(results)
 
     return ss, fps, ppv
 
