@@ -13,7 +13,12 @@ def get_detected_clot(center: Tuple[int, int, int], max_distance: float, mask: n
     for x in range(center[0] - int(max_distance), center[0] + int(max_distance) + 1):
         for y in range(center[1] - int(max_distance), center[1] + int(max_distance) + 1):
             for z in range(center[2] - int(max_distance), center[2] + int(max_distance) + 1):
-                if mask[x, y, z] > 0:
+                if (
+                    (0 <= x < mask.shape[0])
+                    and (0 <= y < mask.shape[1])
+                    and (0 <= z < mask.shape[2])
+                    and mask[x, y, z] > 0
+                ):
                     if np.linalg.norm(np.array([x, y, z]) - center) <= max_distance:
                         if np.linalg.norm(np.array([x, y, z]) - center) < min_distance:
                             min_distance = np.linalg.norm(np.array([x, y, z]) - center)
@@ -143,6 +148,9 @@ if __name__ == "__main__":
     parser.add_argument(
         "--target_file", type=str, default="evaluation.txt", help="file to store the results"
     )
+    parser.add_argument(
+        "--epsilon", type=int, default=0, help="tolerance in mm"
+    )
 
     args = parser.parse_args()
 
@@ -153,4 +161,5 @@ if __name__ == "__main__":
         gt_prefix=args.gt_prefix,
         gt_suffix=args.gt_suffix,
         target_file=args.target_file,
+        epsilon=args.epsilon
     )
