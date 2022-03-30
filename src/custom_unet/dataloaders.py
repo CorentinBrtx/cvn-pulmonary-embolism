@@ -46,8 +46,8 @@ class CadpeDataset(Dataset):
 def get_data_loaders(
     train_img_path,
     train_seg_path,
-    test_img_path,
-    test_seg_path,
+    test_img_path="",
+    test_seg_path="",
     batch_size=1,
     val_proportion: float = 0.1,
     with_frangi=False,
@@ -71,12 +71,16 @@ def get_data_loaders(
         generator=torch.Generator().manual_seed(42),
     )
 
-    test_dataset = CadpeDataset(
-        test_img_path, test_seg_path, transform=test_transform, with_frangi=with_frangi
-    )
+    if test_img_path:
+        test_dataset = CadpeDataset(
+            test_img_path, test_seg_path, transform=test_transform, with_frangi=with_frangi
+        )
+        test_loader = DataLoader(dataset=test_dataset, shuffle=False)
+    else:
+        test_loader = None
+
 
     train_loader = DataLoader(dataset=train_dataset, batch_size=batch_size, shuffle=True)
     val_loader = DataLoader(dataset=val_dataset, shuffle=False)
-    test_loader = DataLoader(dataset=test_dataset, shuffle=False)
 
     return train_loader, val_loader, test_loader
