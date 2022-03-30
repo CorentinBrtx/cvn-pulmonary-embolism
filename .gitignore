@@ -33,4 +33,6 @@ ENV/
 env.bak/
 venv.bak/
 
+mdtk_cadpe_experiment/
+
 *.o*
