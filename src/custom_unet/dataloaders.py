@@ -14,12 +14,14 @@ class CadpeDataset(Dataset):
             os.path.join(img_dir, img_name)
             for img_name in os.listdir(img_dir)
             if img_name.endswith(".nii.gz")
-        ].sort()
+        ]
+        self.imgs_paths.sort()
         self.segs_paths = [
             os.path.join(seg_dir, seg_name)
             for seg_name in os.listdir(seg_dir)
             if seg_name.endswith(".nii.gz")
-        ].sort()
+        ]
+        self.segs_paths.sort()
 
         self.frangi_paths = None
         if with_frangi:
@@ -33,12 +35,13 @@ class CadpeDataset(Dataset):
         return len(self.imgs_paths)
 
     def __getitem__(self, idx):
-        image = nib.load(self.imgs_paths[idx]).get_data()
-        seg = nib.load(self.segs_paths[idx]).get_data()
+        image = nib.load(self.imgs_paths[idx]).get_data().astype(np.float32)
+        seg = nib.load(self.segs_paths[idx]).get_data().astype(np.float32)
         if self.transform:
             image = self.transform(image)
+            image = image[np.newaxis]
         if self.frangi_paths is not None:
-            frangi = nib.load(self.frangi_paths[idx]).get_data()
+            frangi = nib.load(self.frangi_paths[idx]).get_data().astype(np.float32)
             image = np.array([image, frangi])
         return image, seg
 
@@ -54,10 +57,16 @@ def get_data_loaders(
 ):
     """Get the data loaders"""
     train_transform = transforms.Compose(
-        [transforms.ToTensor(), transforms.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5])]
+        [
+            transforms.ToTensor(), 
+            # transforms.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5])
+        ]
     )
     test_transform = transforms.Compose(
-        [transforms.ToTensor(), transforms.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5])]
+        [
+            transforms.ToTensor(), 
+            # transforms.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5])
+        ]
     )
 
     train_dataset = CadpeDataset(

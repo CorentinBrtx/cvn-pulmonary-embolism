@@ -15,6 +15,8 @@ parser.add_argument("--train_seg_path", type=str)
 parser.add_argument("--test_img_path", type=str, default="")
 parser.add_argument("--test_seg_path", type=str, default="")
 parser.add_argument("--model_path", type=str, default="/gpfs/workdir/shared/pulmembol/custom_unet")
+parser.add_argument("--n_epochs", type=int, default=1000)
+parser.add_argument("--batch_size", type=int, default=1000)
 
 args = parser.parse_args()
 
@@ -43,12 +45,12 @@ train(
     scheduler=None,
     optimizer=optimizer,
     criterion=criterion,
-    num_epochs=1000,
+    num_epochs=args.n_epochs,
     device=DEVICE,
     model_path=args.model_path,
     logger=logger,
 )
 
-""" # Test
+# Test
 test_loss = evaluate(model, test_loader, criterion, "cuda")
-print(f"Mean loss: {test_loss:.3f}") """
+print(f"Mean loss on test set: {test_loss:.3f}") 
