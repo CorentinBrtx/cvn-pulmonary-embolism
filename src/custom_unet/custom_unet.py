@@ -109,4 +109,4 @@ class CustomUNet(nn.Module):
         out1 = self.conv1(self.crop_and_merge(down1, up4))
         out2 = self.conv2(out1)
         out3 = self.conv3(out2)
-        return out3
+        return F.sigmoid(out3)

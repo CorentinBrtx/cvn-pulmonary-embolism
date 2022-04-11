@@ -1,0 +1,19 @@
+name: pulmembol
+channels:
+  - pytorch
+dependencies:
+  - python=3.9
+  - numpy
+  - pandas
+  - pytorch
+  - torchvision
+  - tqdm
+  - pip
+  - cudatoolkit=11.3
+  - scikit-image
+  - matplotlib
+  - pip:
+    - pynrrd
+    - SimpleITK 
+    - nibabel
+

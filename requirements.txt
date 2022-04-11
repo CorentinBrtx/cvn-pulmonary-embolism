@@ -1,11 +1,13 @@
 nibabel
-nnunet
+# nnunet
 numpy
 pynrrd
-scikit_image
+# scikit_image
 SimpleITK
 tqdm
 black
-pre-commit
+# pre-commit
 scikit-image
 scipy
+torch
+nibabel

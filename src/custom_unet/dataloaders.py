@@ -7,8 +7,9 @@ import nibabel as nib
 
 
 class CadpeDataset(Dataset):
-    def __init__(self, img_dir, seg_dir, transform=None, with_frangi=False):
+    def __init__(self, img_dir, seg_dir, transform=None, with_frangi=False, n_patches=None):
         self.transform = transform
+        self.n_patches = n_patches or (1, 1, 1)
 
         self.imgs_paths = [
             os.path.join(img_dir, img_name)

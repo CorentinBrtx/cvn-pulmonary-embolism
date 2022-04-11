@@ -36,3 +36,4 @@ venv.bak/
 mdtk_cadpe_experiment/
 
 *.o*
+*.log

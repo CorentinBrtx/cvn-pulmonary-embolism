@@ -69,6 +69,7 @@ def train(
 
         # Training
         model.train()
+        model.to(device)
         epoch_loss = 0
         for i, (images, masks) in enumerate(train_loader):
             images = images.to(device)
