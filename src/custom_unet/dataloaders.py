@@ -29,12 +29,12 @@ class CadpeDatasetBase:
         if with_frangi:
             self.frangi_paths = with_frangi
 
-    def get_patch_slice(self, patch_idx: int):
+    def get_patch_slice(self, patch_idx: Tuple[int, int, int], idx_starts: Tuple[int, int, int]):
         a, b, c = patch_idx
-        return np.s_[
-            a * (self.patch_size[0]) : (a + 1) * self.patch_size[0],
-            b * (self.patch_size[1]) : (b + 1) * self.patch_size[1],
-            c * (self.patch_size[2]) : (c + 1) * self.patch_size[2],
+        return np.index_exp[
+            idx_starts[0] + a * (self.patch_size[0]) : idx_starts[0] + (a + 1) * self.patch_size[0],
+            idx_starts[1] + b * (self.patch_size[1]) : idx_starts[1] + (b + 1) * self.patch_size[1],
+            idx_starts[2] + c * (self.patch_size[2]) : idx_starts[2] + (c + 1) * self.patch_size[2],
         ]
 
 
@@ -74,14 +74,16 @@ class CadpeDataset(CadpeDatasetBase, Dataset):
         patch_slice = self.get_patch_slice((a, b, c))
         image = nib.load(self.imgs_paths[img_idx]).get_data().astype(np.float32)[patch_slice]
         seg = nib.load(self.segs_paths[img_idx]).get_data().astype(np.float32)[patch_slice]
-        if self.transform:
-            image = self.transform(image)
         if self.frangi_paths is not None:
             frangi = nib.load(self.frangi_paths[img_idx]).get_data().astype(np.float32)[patch_slice]
             image = np.array([image, frangi])
         else:
             image = image[np.newaxis]
-        return image, seg
+
+        if self.transform:
+            image = self.transform(image)
+            seg = self.transform(seg)
+        return torch.from_numpy(image), torch.from_numpy(seg)
 
 
 class IterableCadpeDataset(CadpeDatasetBase, IterableDataset):
@@ -97,45 +99,38 @@ class IterableCadpeDataset(CadpeDatasetBase, IterableDataset):
         super().__init__(imgs_paths, segs_paths, transform, with_frangi, patch_size)
         self.random = np.random.default_rng(seed)
     
-    def pad_image(self, image: np.ndarray):
-        """Pad the image with zeros so that its size is divisible by the patch size.
-        image (np.ndarray): The image to pad. Should be a 4D array."""
-        shape = image.shape
-        # print(shape, self.patch_size)
-        n_patches = [shape[i +1] // self.patch_size[i] + 1 for i in range(3)]
-        padded_image = np.zeros(
-            [shape[0]] + [n_patches[i] * self.patch_size[i] for i in range(3)]
-        )
-        slice_starts = [(shape[i] % self.patch_size[i]) // 2 for i in range(3)]
-        slice_idxs = [slice(slice_starts[i], slice_starts[i] + shape[i+1]) for i in range(3)]
-        padded_image[slice_idxs] = image
-        return padded_image
+    def __len__(self):
+        """This is an estimation"""
+        return len(self.imgs_paths) * (512 // self.patch_size[0])**3
 
     def __iter__(self):
         shuffle_idx = self.random.permutation(len(self.imgs_paths))
         for idx in shuffle_idx:
             img_data = nib.load(self.imgs_paths[idx]).get_data().astype(np.float32)
-            if self.transform:
-                img_data = self.transform(img_data)
             if self.frangi_paths is not None:
                 frangi_data = nib.load(self.frangi_paths[idx]).get_data().astype(np.float32)
                 img_data = np.array([img_data, frangi_data])
             else:
                 img_data = img_data[np.newaxis]
-            
-            padded_img_data = self.pad_image(img_data)
-            img_shape = img_data.shape
-            
-            seg_data = nib.load(self.segs_paths[idx]).get_data().astype(np.float32)
-            padded_seg_data = self.pad_image(seg_data)
 
-            for a in range(img_shape[0] // self.patch_size[0] + 1):
-                for b in range(img_shape[1] // self.patch_size[1] + 1):
-                    for c in range(img_shape[2] // self.patch_size[2] + 1):
-                        patch_slice = self.get_patch_slice((a, b, c))
-                        image = padded_img_data[patch_slice]
-                        seg = padded_seg_data[patch_slice]
-                        yield image, seg
+            shape = img_data.shape[1:]
+            n_patches = [shape[i] // self.patch_size[i] for i in range(3)]
+            slice_starts = [
+                (self.patch_size[i] - (shape[i] % self.patch_size[i])) // 2 for i in range(3)
+            ]
+            seg_data = nib.load(self.segs_paths[idx]).get_data().astype(np.float32)
+
+            if self.transform:
+                img_data = self.transform(img_data)
+                seg_data = self.transform(seg_data)
+
+            for a in range(n_patches[0]):
+                for b in range(n_patches[1]):
+                    for c in range(n_patches[2]):
+                        patch_slice = self.get_patch_slice((a, b, c), slice_starts)
+                        image = img_data[(slice(2),) + patch_slice]
+                        seg = seg_data[patch_slice]
+                        yield torch.from_numpy(image), torch.from_numpy(seg)
 
 
 def search_imgs(img_dir: str):
@@ -162,19 +157,6 @@ def get_data_loaders(
     seed: int = 42,
 ):
     """Get the data loaders"""
-    train_transform = transforms.Compose(
-        [
-            transforms.ToTensor(),
-            # transforms.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5])
-        ]
-    )
-    test_transform = transforms.Compose(
-        [
-            transforms.ToTensor(),
-            # transforms.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5])
-        ]
-    )
-
     imgs_paths = search_imgs(train_img_path)
     segs_paths = search_imgs(train_seg_path)
     val_dataset_size = int(len(imgs_paths) * val_proportion)
@@ -185,14 +167,14 @@ def get_data_loaders(
         train_dataset = IterableCadpeDataset(
             [imgs_paths[i] for i in shuffle[val_dataset_size:]],
             [segs_paths[i] for i in shuffle[val_dataset_size:]],
-            transform=train_transform,
+            # transform=train_transform,
             with_frangi=with_frangi,
             patch_size=patch_size,
         )
         val_dataset = IterableCadpeDataset(
             [imgs_paths[i] for i in shuffle[:val_dataset_size]],
             [segs_paths[i] for i in shuffle[:val_dataset_size]],
-            transform=train_transform,
+            # transform=train_transform,
             with_frangi=with_frangi,
             patch_size=patch_size,
         )
@@ -200,7 +182,7 @@ def get_data_loaders(
         train_dataset = CadpeDataset(
             imgs_paths, 
             segs_paths, 
-            transform=train_transform, 
+            # transform=train_transform, 
             with_frangi=with_frangi, 
             patch_size=patch_size
         )
@@ -228,7 +210,7 @@ def get_data_loaders(
         test_dataset = (IterableCadpeDataset if iterable else CadpeDataset)(
             search_imgs(test_img_path), 
             search_imgs(test_seg_path), 
-            transform=test_transform, 
+            # transform=test_transform, 
             with_frangi=with_frangi, 
             patch_size=patch_size
         )
