@@ -27,7 +27,7 @@ def evaluate(model, val_loader, criterion, device):
 
 
 def diceBCELoss(inputs: torch.TensorType, targets: torch.TensorType, smooth=1):
-    inputs = F.sigmoid(inputs)
+    inputs = torch.sigmoid(inputs)
 
     # flatten label and prediction tensors
     inputs = inputs.view(-1)
