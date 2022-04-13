@@ -6,6 +6,7 @@ from typing import Literal, Tuple
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import numpy as np
 
 
 class DownLayer(nn.Module):
@@ -15,65 +16,40 @@ class DownLayer(nn.Module):
         out_channels: int,
         pool_size: Tuple[int, int, int] = (2, 2, 2),
         pool_stride: Tuple[int, int, int] = (2, 2, 2),
-        pool_type: Literal["max", "avg"] = "max",
+        pool_type: Literal["max", "avg", "skip"] = "max",
     ) -> None:
         super().__init__()
 
-        self.conv1 = nn.Conv3d(in_channels, out_channels, kernel_size=3)
+        self.conv1 = nn.Conv3d(in_channels, out_channels, kernel_size=3, padding=1)
         self.bn1 = nn.BatchNorm3d(out_channels)
-        self.conv2 = nn.Conv3d(out_channels, out_channels, kernel_size=3)
+        self.conv2 = nn.Conv3d(out_channels, out_channels, kernel_size=3, padding=1)
         self.bn2 = nn.BatchNorm3d(out_channels)
 
         if pool_type == "max":
             self.pool = nn.MaxPool3d(pool_size, stride=pool_stride)
         elif pool_type == "avg":
             self.pool = nn.AvgPool3d(pool_size, stride=pool_stride)
+        elif pool_type == "skip":
+            self.pool = nn.Identity()
         else:
             raise ValueError("Pool type must be either 'max' or 'avg'.")
 
     def forward(self, x: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
+        x = self.pool(x)
         x = F.relu(self.bn1(self.conv1(x)))
         x = F.relu(self.bn2(self.conv2(x)))
-        x_pooled = self.pool(x)
-        return x_pooled, x
+        return x
 
 
 class UpLayer(nn.Module):
     def __init__(self, in_channels: int, out_channels: int) -> None:
         super().__init__()
+        self.up_sampling = nn.ConvTranspose3d(in_channels, out_channels, kernel_size=2, stride=2)
 
-        self.conv1 = nn.Conv3d(in_channels, out_channels, kernel_size=3)
+        self.conv1 = nn.Conv3d(in_channels, out_channels, kernel_size=3, padding=1)
         self.bn1 = nn.BatchNorm3d(out_channels)
-        self.conv2 = nn.Conv3d(out_channels, out_channels, kernel_size=3)
+        self.conv2 = nn.Conv3d(out_channels, out_channels, kernel_size=3, padding=1)
         self.bn2 = nn.BatchNorm3d(out_channels)
-        self.up_sampling = nn.ConvTranspose3d(out_channels, out_channels, kernel_size=2, stride=2)
-
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        x = F.relu(self.bn1(self.conv1(x)))
-        x = F.relu(self.bn2(self.conv2(x)))
-        x = self.up_sampling(x)
-        return x
-
-
-class CustomUNet(nn.Module):
-    def __init__(self, in_channels: int = 1, internal_channels: int = 64):
-        super(CustomUNet, self).__init__()
-
-        # Downsampling path
-        self.down1 = DownLayer(in_channels, internal_channels)
-        self.down2 = DownLayer(internal_channels, internal_channels * 2)
-        self.down3 = DownLayer(internal_channels * 2, internal_channels * 4)
-        self.down4 = DownLayer(internal_channels * 4, internal_channels * 8)
-
-        # Upsampling path
-        self.up1 = UpLayer(internal_channels * 8, internal_channels * 16)
-        self.up2 = UpLayer(internal_channels * 16, internal_channels * 8)
-        self.up3 = UpLayer(internal_channels * 8, internal_channels * 4)
-        self.up4 = UpLayer(internal_channels * 4, internal_channels * 2)
-
-        self.conv1 = nn.Conv3d(internal_channels * 2, internal_channels, kernel_size=3)
-        self.conv2 = nn.Conv3d(internal_channels, internal_channels, kernel_size=3)
-        self.conv3 = nn.Conv3d(internal_channels, 1, kernel_size=1)
 
     @staticmethod
     def crop_and_merge(
@@ -90,23 +66,86 @@ class CustomUNet(nn.Module):
         ]
         merged = torch.cat((from_down, from_up), 1)
         return merged
+    
+    def forward(self, x: torch.Tensor, x_sym: torch.Tensor) -> torch.Tensor:
+        x = self.up_sampling(x)
+        x = self.crop_and_merge(x_sym, x)
+        x = F.relu(self.bn1(self.conv1(x)))
+        x = F.relu(self.bn2(self.conv2(x)))
+        return x
+
+
+class CustomUNet(nn.Module):
+    def __init__(
+        self, 
+        in_channels: int = 1, 
+        internal_channels: int = 64, 
+        n_layers: int = 4, 
+        # patch_size: Tuple[int, int, int] = (50, 50, 50)
+    ) -> None:
+        super(CustomUNet, self).__init__()
+
+        # self.patch_size = patch_size
+
+        # Downsampling path
+        self.downs = nn.ModuleList()
+        for i in range(n_layers + 1):
+            if i == 0:
+                layer = DownLayer(in_channels, internal_channels, pool_type="skip")
+            else:
+                layer = DownLayer(internal_channels * 2**(i-1), internal_channels * 2**i)
+            self.downs.append(layer)
+
+        # Upsampling path
+        self.ups = nn.ModuleList()
+        for i in range(n_layers):
+            layer = UpLayer(internal_channels * 2**(n_layers-i), internal_channels * 2**(n_layers-i-1))
+            self.ups.append(layer)
+
+        self.out_conv = nn.Conv3d(internal_channels, 1, kernel_size=1)
+
+    # def forward(self, x: torch.Tensor) -> torch.Tensor:
+    #     x_shape = x.size()
+    #     print(x_shape, self.patch_size)
+    #     n_patches = [x_shape[i + 2] // self.patch_size[i] + 1 for i in range(3)]
+    #     padded_x = torch.zeros(
+    #         [x_shape[0], x_shape[1]] + [n_patches[i] * self.patch_size[i] for i in range(3)]
+    #     ).to(x.device)
+    #     x_slice = np.s_[:, :, 
+    #         self.patch_size[0]//2: self.patch_size[0]//2 + x_shape[2],
+    #         self.patch_size[1]//2: self.patch_size[1]//2 + x_shape[3],
+    #         self.patch_size[2]//2: self.patch_size[2]//2 + x_shape[4],
+    #     ]
+    #     padded_x[x_slice] = x
+
+    #     pred = torch.zeros_like(padded_x).to(x.device)
+    #     for a in range(n_patches[0]):
+    #         for b in range(n_patches[1]):
+    #             for c in range(n_patches[2]):
+    #                 patch_slice = np.s_[:,
+    #                     a * self.patch_size[0] : (a + 1) * self.patch_size[0],
+    #                     b * self.patch_size[1] : (b + 1) * self.patch_size[1],
+    #                     c * self.patch_size[2] : (c + 1) * self.patch_size[2],
+    #                 ]
+    #                 patch = padded_x[patch_slice]
+    #                 pred[patch_slice] = self.patch_forward(patch)
+    #     return pred[x_slice]
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         # Downsampling
-        down1_pooled, down1 = self.down1(x)
-        down2_pooled, down2 = self.down2(down1_pooled)
-        down3_pooled, down3 = self.down3(down2_pooled)
-        # down4_pooled, down4 = self.down4(down3_pooled)
+        down_x = [x]
+        for down_layer in self.downs:
+            # print(down_x[-1].size())
+            down_x.append(down_layer(down_x[-1]))
 
+        # print(down_x[-1].size())
         # Upsampling
-        # up1 = self.up1(down4_pooled)
-        # up2 = self.up2(self.crop_and_merge(down4, up1))
-
-        up2 = self.up2(down3_pooled)
-        up3 = self.up3(self.crop_and_merge(down3, up2))
-        up4 = self.up4(self.crop_and_merge(down2, up3))
-
-        out1 = self.conv1(self.crop_and_merge(down1, up4))
-        out2 = self.conv2(out1)
-        out3 = self.conv3(out2)
-        return F.sigmoid(out3)
+        up_x = self.ups[0](down_x[-1], down_x[-2])
+        for i in range(1, len(self.ups)):
+            # print(up_x.size())
+            up_x = self.ups[i](up_x, down_x[-i-2])
+        
+        # print(up_x.size())
+        out = self.out_conv(up_x)
+        # print(out.size())
+        return torch.sigmoid(out)
