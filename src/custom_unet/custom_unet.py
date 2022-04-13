@@ -81,11 +81,8 @@ class CustomUNet(nn.Module):
         in_channels: int = 1, 
         internal_channels: int = 64, 
         n_layers: int = 4, 
-        # patch_size: Tuple[int, int, int] = (50, 50, 50)
     ) -> None:
         super(CustomUNet, self).__init__()
-
-        # self.patch_size = patch_size
 
         # Downsampling path
         self.downs = nn.ModuleList()
@@ -104,48 +101,16 @@ class CustomUNet(nn.Module):
 
         self.out_conv = nn.Conv3d(internal_channels, 1, kernel_size=1)
 
-    # def forward(self, x: torch.Tensor) -> torch.Tensor:
-    #     x_shape = x.size()
-    #     print(x_shape, self.patch_size)
-    #     n_patches = [x_shape[i + 2] // self.patch_size[i] + 1 for i in range(3)]
-    #     padded_x = torch.zeros(
-    #         [x_shape[0], x_shape[1]] + [n_patches[i] * self.patch_size[i] for i in range(3)]
-    #     ).to(x.device)
-    #     x_slice = np.s_[:, :, 
-    #         self.patch_size[0]//2: self.patch_size[0]//2 + x_shape[2],
-    #         self.patch_size[1]//2: self.patch_size[1]//2 + x_shape[3],
-    #         self.patch_size[2]//2: self.patch_size[2]//2 + x_shape[4],
-    #     ]
-    #     padded_x[x_slice] = x
-
-    #     pred = torch.zeros_like(padded_x).to(x.device)
-    #     for a in range(n_patches[0]):
-    #         for b in range(n_patches[1]):
-    #             for c in range(n_patches[2]):
-    #                 patch_slice = np.s_[:,
-    #                     a * self.patch_size[0] : (a + 1) * self.patch_size[0],
-    #                     b * self.patch_size[1] : (b + 1) * self.patch_size[1],
-    #                     c * self.patch_size[2] : (c + 1) * self.patch_size[2],
-    #                 ]
-    #                 patch = padded_x[patch_slice]
-    #                 pred[patch_slice] = self.patch_forward(patch)
-    #     return pred[x_slice]
-
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         # Downsampling
         down_x = [x]
         for down_layer in self.downs:
-            # print(down_x[-1].size())
             down_x.append(down_layer(down_x[-1]))
 
-        # print(down_x[-1].size())
         # Upsampling
         up_x = self.ups[0](down_x[-1], down_x[-2])
         for i in range(1, len(self.ups)):
-            # print(up_x.size())
             up_x = self.ups[i](up_x, down_x[-i-2])
         
-        # print(up_x.size())
         out = self.out_conv(up_x)
-        # print(out.size())
         return torch.sigmoid(out)
