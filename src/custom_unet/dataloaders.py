@@ -11,18 +11,18 @@ from typing import Tuple, List
 
 class CadpeDatasetBase:
     def __init__(
-        self, 
-        imgs_paths: List[str], 
-        segs_paths: List[str], 
-        transform=None, 
-        with_frangi: List[str] = None, 
+        self,
+        imgs_paths: List[str],
+        segs_paths: List[str],
+        transform=None,
+        with_frangi: List[str] = None,
         patch_size: Tuple[int, int, int] = (50, 50, 50)
     ):
         self.transform = transform
         self.patch_size = patch_size
 
         self.imgs_paths = imgs_paths
-        
+
         self.segs_paths = segs_paths
 
         self.frangi_paths = None
@@ -40,11 +40,11 @@ class CadpeDatasetBase:
 
 class CadpeDataset(CadpeDatasetBase, Dataset):
     def __init__(
-        self, 
-        imgs_paths: List[str], 
-        segs_paths: List[str], 
-        transform=None, 
-        with_frangi: List[str] = None, 
+        self,
+        imgs_paths: List[str],
+        segs_paths: List[str],
+        transform=None,
+        with_frangi: List[str] = None,
         patch_size: Tuple[int, int, int] = (50, 50, 50)
     ):
         super().__init__(imgs_paths, segs_paths, transform, with_frangi, patch_size)
@@ -63,7 +63,6 @@ class CadpeDataset(CadpeDatasetBase, Dataset):
                     for c in range(img_shape[2] // self.patch_size[2] - 1)
                 ]
             )
-
         return patch_positions
 
     def __len__(self):
@@ -88,24 +87,28 @@ class CadpeDataset(CadpeDatasetBase, Dataset):
 
 class IterableCadpeDataset(CadpeDatasetBase, IterableDataset):
     def __init__(
-        self, 
-        imgs_paths: List[str], 
-        segs_paths: List[str], 
-        transform=None, 
-        with_frangi: List[str] = None, 
+        self,
+        imgs_paths: List[str],
+        segs_paths: List[str],
+        transform=None,
+        with_frangi: List[str] = None,
         patch_size: Tuple[int, int, int] = (50, 50, 50),
         seed: int = 42
     ):
         super().__init__(imgs_paths, segs_paths, transform, with_frangi, patch_size)
         self.random = np.random.default_rng(seed)
-    
+
     def __len__(self):
         """This is an estimation"""
         return len(self.imgs_paths) * (512 // self.patch_size[0])**3
 
     def __iter__(self):
-        shuffle_idx = self.random.permutation(len(self.imgs_paths))
-        for idx in shuffle_idx:
+        # shuffle_idx = self.random.permutation(len(self.imgs_paths))
+        uid = torch.utils.data.get_worker_info().id
+        worker_total_num = torch.utils.data.get_worker_info().num_workers
+        start = uid * len(self.imgs_paths) // worker_total_num
+        end = min(len(self.imgs_paths), (uid + 1) * len(self.imgs_paths) // worker_total_num)
+        for idx in range(start, end):
             img_data = nib.load(self.imgs_paths[idx]).get_data().astype(np.float32)
             if self.frangi_paths is not None:
                 frangi_data = nib.load(self.frangi_paths[idx]).get_data().astype(np.float32)
@@ -116,7 +119,7 @@ class IterableCadpeDataset(CadpeDatasetBase, IterableDataset):
             shape = img_data.shape[1:]
             n_patches = [shape[i] // self.patch_size[i] for i in range(3)]
             slice_starts = [
-                (self.patch_size[i] - (shape[i] % self.patch_size[i])) // 2 for i in range(3)
+                (shape[i] % self.patch_size[i]) // 2 for i in range(3)
             ]
             seg_data = nib.load(self.segs_paths[idx]).get_data().astype(np.float32)
 
@@ -180,10 +183,10 @@ def get_data_loaders(
         )
     else:
         train_dataset = CadpeDataset(
-            imgs_paths, 
-            segs_paths, 
-            # transform=train_transform, 
-            with_frangi=with_frangi, 
+            imgs_paths,
+            segs_paths,
+            # transform=train_transform,
+            with_frangi=with_frangi,
             patch_size=patch_size
         )
 
@@ -195,23 +198,23 @@ def get_data_loaders(
 
     # set num_workers to 0 when iterable so that the data loader doesn't fetch all dataset at once
     train_loader = DataLoader(
-        dataset=train_dataset, 
-        batch_size=batch_size, 
-        shuffle=not iterable, 
-        num_workers=num_workers * (not iterable)
+        dataset=train_dataset,
+        batch_size=batch_size,
+        shuffle=not iterable,
+        num_workers=num_workers
     )
     val_loader = DataLoader(
-        dataset=val_dataset, 
-        shuffle=False, 
-        num_workers=num_workers * (not iterable)
+        dataset=val_dataset,
+        shuffle=False,
+        num_workers=num_workers
     )
-    
+
     if test_img_path:
         test_dataset = (IterableCadpeDataset if iterable else CadpeDataset)(
-            search_imgs(test_img_path), 
-            search_imgs(test_seg_path), 
-            # transform=test_transform, 
-            with_frangi=with_frangi, 
+            search_imgs(test_img_path),
+            search_imgs(test_seg_path),
+            # transform=test_transform,
+            with_frangi=with_frangi,
             patch_size=patch_size
         )
         test_loader = DataLoader(dataset=test_dataset, shuffle=False, num_workers=num_workers)
